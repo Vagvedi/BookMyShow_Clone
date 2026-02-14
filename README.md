@@ -1,6 +1,6 @@
 # BookMyShow Clone - Full Stack Movie Ticket Booking Application
 
-A full-featured movie ticket booking platform built with React, TypeScript, Node.js, Express, and MongoDB. This application mimics the core functionality of BookMyShow, including movie listings, theatre management, seat selection, booking, and payment processing.
+A full-featured movie ticket booking platform built with React, TypeScript, Node.js, Express, and MySQL. This application mimics the core functionality of BookMyShow, including movie listings, theatre management, seat selection, booking, and payment processing.
 
 ## 🚀 Features
 
