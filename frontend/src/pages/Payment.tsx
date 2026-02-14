@@ -5,7 +5,7 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { useMutation } from '@tanstack/react-query';
 import { paymentService } from '../services/paymentService';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder');
 
 const PaymentForm: React.FC<{ bookingId: string; clientSecret: string; paymentIntentId: string }> = ({
   bookingId,

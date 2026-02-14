@@ -1,13 +1,206 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const Booking = require('../models/Booking');
-const Show = require('../models/Show');
-const Screen = require('../models/Screen');
+const sequelize = require('../config/database');
+const Booking = require('../models/Booking')(sequelize);
+const Show = require('../models/Show')(sequelize);
+const Screen = require('../models/Screen')(sequelize);
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
 // @route   POST /api/v1/bookings
+// @desc    Create new booking
+// @access  Private
+router.post(
+  '/',
+  protect,
+  [
+    body('showId').notEmpty().withMessage('Show ID is required'),
+    body('seats').isArray({ min: 1 }).withMessage('At least one seat must be selected'),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array(),
+        });
+      }
+
+      const { showId, seats } = req.body;
+
+      // Get show details
+      const show = await Show.findByPk(showId);
+
+      if (!show) {
+        return res.status(404).json({
+          success: false,
+          message: 'Show not found',
+        });
+      }
+
+      if (!show.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: 'Show is not available',
+        });
+      }
+
+      // Check seat availability
+      const bookedSeats = show.bookedSeats || [];
+      for (const seat of seats) {
+        const seatExists = bookedSeats.some(b => b.row === seat.row && b.number === seat.number);
+        if (seatExists) {
+          return res.status(400).json({
+            success: false,
+            message: `Seat ${seat.row}${seat.number} is already booked`,
+          });
+        }
+      }
+
+      // Calculate total amount
+      const screen = await Screen.findByPk(show.screenId);
+      let totalAmount = 0;
+      
+      for (const seat of seats) {
+        const screenSeat = screen.seats.find(s => s.row === seat.row && s.number === seat.number);
+        totalAmount += screenSeat?.price || show.basePrice;
+      }
+
+      // Create booking
+      const booking = await Booking.create({
+        userId: req.user.id,
+        showId,
+        movieId: show.movieId,
+        theatreId: show.theatreId,
+        screenId: show.screenId,
+        seats,
+        totalAmount,
+        showDate: show.startTime,
+        showTime: show.startTime,
+        status: 'Pending',
+      });
+
+      // Update show booked seats
+      const updatedBookedSeats = [...bookedSeats, ...seats];
+      await show.update({
+        bookedSeats: updatedBookedSeats,
+        availableSeats: show.availableSeats - seats.length,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: { booking },
+      });
+    } catch (error) {
+      console.error('Create booking error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error',
+      });
+    }
+  }
+);
+
+// @route   GET /api/v1/bookings
+// @desc    Get user bookings
+// @access  Private
+router.get('/', protect, async (req, res) => {
+  try {
+    const bookings = await Booking.findAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.json({
+      success: true,
+      data: { bookings },
+    });
+  } catch (error) {
+    console.error('Get bookings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+});
+
+// @route   GET /api/v1/bookings/:id
+// @desc    Get single booking
+// @access  Private
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const booking = await Booking.findByPk(req.params.id);
+
+    if (!booking || booking.userId !== req.user.id) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { booking },
+    });
+  } catch (error) {
+    console.error('Get booking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+});
+
+// @route   DELETE /api/v1/bookings/:id
+// @desc    Cancel booking
+// @access  Private
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    const booking = await Booking.findByPk(req.params.id);
+
+    if (!booking || booking.userId !== req.user.id) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+    }
+
+    if (booking.status === 'Cancelled') {
+      return res.status(400).json({
+        success: false,
+        message: 'Booking is already cancelled',
+      });
+    }
+
+    await booking.update({ status: 'Cancelled' });
+
+    // Return seats to show
+    const show = await Show.findByPk(booking.showId);
+    const updatedBookedSeats = show.bookedSeats.filter(
+      b => !(b.row === booking.seats[0].row && b.number === booking.seats[0].number)
+    );
+    
+    await show.update({
+      bookedSeats: updatedBookedSeats,
+      availableSeats: show.availableSeats + booking.seats.length,
+    });
+
+    res.json({
+      success: true,
+      message: 'Booking cancelled successfully',
+    });
+  } catch (error) {
+    console.error('Cancel booking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+});
+
+module.exports = router;
 // @desc    Create new booking
 // @access  Private
 router.post(

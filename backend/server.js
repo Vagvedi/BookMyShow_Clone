@@ -1,7 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const sequelize = require('./config/database');
 
 dotenv.config();
 
@@ -11,6 +11,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Import models
+const User = require('./models/User')(sequelize);
+const Movie = require('./models/Movie')(sequelize);
+const Theatre = require('./models/Theatre')(sequelize);
+const Screen = require('./models/Screen')(sequelize);
+const Show = require('./models/Show')(sequelize);
+const Booking = require('./models/Booking')(sequelize);
+const Payment = require('./models/Payment')(sequelize);
 
 // Routes
 app.use('/api/v1/auth', require('./routes/auth'));
@@ -44,21 +53,18 @@ app.use((req, res) => {
   });
 });
 
-// Database connection
-mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bookmyshow', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+// Database connection and server startup
+sequelize
+  .sync({ alter: process.env.NODE_ENV === 'development' })
   .then(() => {
-    console.log('MongoDB Connected');
+    console.log('MySQL Connected');
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error('MongoDB connection error:', err);
+    console.error('Database connection error:', err);
     process.exit(1);
   });
 

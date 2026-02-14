@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const sequelize = require('../config/database');
+const User = require('../models/User')(sequelize);
 
 // Protect routes - require authentication
 exports.protect = async (req, res, next) => {
@@ -17,8 +18,8 @@ exports.protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    req.user = await User.findByPk(decoded.id);
     
     if (!req.user) {
       return res.status(401).json({

@@ -1,41 +1,57 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-const theatreSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Theatre name is required'],
-    trim: true,
-  },
-  city: {
-    type: String,
-    required: [true, 'City is required'],
-    trim: true,
-  },
-  address: {
-    type: String,
-    required: [true, 'Address is required'],
-  },
-  location: {
-    latitude: Number,
-    longitude: Number,
-  },
-  amenities: [{
-    type: String,
-    enum: ['Parking', 'Food Court', 'AC', 'Dolby Atmos', 'IMAX', 'Recliner Seats'],
-  }],
-  contact: {
-    phone: String,
-    email: String,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-}, {
-  timestamps: true,
-});
+module.exports = (sequelize) => {
+  const Theatre = sequelize.define('Theatre', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Theatre name is required' },
+      },
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'City is required' },
+      },
+      index: true,
+    },
+    address: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Address is required' },
+      },
+    },
+    location: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: { latitude: null, longitude: null },
+    },
+    amenities: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    contact: {
+      type: DataTypes.JSON,
+      defaultValue: { phone: null, email: null },
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  }, {
+    timestamps: true,
+    indexes: [
+      { fields: ['city'] },
+    ],
+  });
 
-// Index for city-based queries
-theatreSchema.index({ city: 1 });
-
-module.exports = mongoose.model('Theatre', theatreSchema);
+  return Theatre;
+};

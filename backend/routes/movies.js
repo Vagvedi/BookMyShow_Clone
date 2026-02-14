@@ -1,6 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const Movie = require('../models/Movie');
+const { Op } = require('sequelize');
+const sequelize = require('../config/database');
+const Movie = require('../models/Movie')(sequelize);
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -14,41 +16,44 @@ router.get('/', async (req, res) => {
       search,
       genre,
       language,
-      city,
       page = 1,
       limit = 10,
       sortBy = 'releaseDate',
       sortOrder = 'desc',
     } = req.query;
 
-    const query = { isActive: true };
+    const where = { isActive: true };
 
     // Search by title or description
     if (search) {
-      query.$text = { $search: search };
+      where[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } }
+      ];
     }
 
-    // Filter by genre
+    // Filter by genre - handle JSON array
     if (genre) {
-      query.genre = { $in: Array.isArray(genre) ? genre : [genre] };
+      const genreArray = Array.isArray(genre) ? genre : [genre];
+      // JSON contains check
+      where[Op.or] = genreArray.map(g => sequelize.where(sequelize.fn('JSON_CONTAINS', sequelize.col('genre'), sequelize.literal(`"${g}"`)), Op.eq, 1));
     }
 
-    // Filter by language
+    // Filter by language - handle JSON array
     if (language) {
-      query.language = { $in: Array.isArray(language) ? language : [language] };
+      const langArray = Array.isArray(language) ? language : [language];
+      where[Op.or] = langArray.map(l => sequelize.where(sequelize.fn('JSON_CONTAINS', sequelize.col('language'), sequelize.literal(`"${l}"`)), Op.eq, 1));
     }
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const order = [[sortBy, sortOrder === 'asc' ? 'ASC' : 'DESC']];
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const movies = await Movie.find(query)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    const total = await Movie.countDocuments(query);
+    const { count, rows: movies } = await Movie.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset,
+      order,
+    });
 
     res.json({
       success: true,
@@ -57,8 +62,8 @@ router.get('/', async (req, res) => {
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
-          total,
-          pages: Math.ceil(total / parseInt(limit)),
+          total: count,
+          pages: Math.ceil(count / parseInt(limit)),
         },
       },
     });
@@ -76,7 +81,7 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const movie = await Movie.findById(req.params.id);
+    const movie = await Movie.findByPk(req.params.id);
     
     if (!movie) {
       return res.status(404).json({
@@ -145,11 +150,7 @@ router.post(
 // @access  Private/Admin
 router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
   try {
-    const movie = await Movie.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const movie = await Movie.findByPk(req.params.id);
 
     if (!movie) {
       return res.status(404).json({
@@ -157,6 +158,8 @@ router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
         message: 'Movie not found',
       });
     }
+
+    await movie.update(req.body);
 
     res.json({
       success: true,
@@ -176,11 +179,7 @@ router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
 // @access  Private/Admin
 router.delete('/:id', protect, authorize('ADMIN'), async (req, res) => {
   try {
-    const movie = await Movie.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
-      { new: true }
-    );
+    const movie = await Movie.findByPk(req.params.id);
 
     if (!movie) {
       return res.status(404).json({
@@ -188,6 +187,8 @@ router.delete('/:id', protect, authorize('ADMIN'), async (req, res) => {
         message: 'Movie not found',
       });
     }
+
+    await movie.update({ isActive: false });
 
     res.json({
       success: true,

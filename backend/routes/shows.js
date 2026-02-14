@@ -1,7 +1,11 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const Show = require('../models/Show');
-const Screen = require('../models/Screen');
+const { Op } = require('sequelize');
+const sequelize = require('../config/database');
+const Show = require('../models/Show')(sequelize);
+const Screen = require('../models/Screen')(sequelize);
+const Movie = require('../models/Movie')(sequelize);
+const Theatre = require('../models/Theatre')(sequelize);
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -12,14 +16,14 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { movieId, theatreId, date, city } = req.query;
-    const query = { isActive: true };
+    const where = { isActive: true };
 
     if (movieId) {
-      query.movie = movieId;
+      where.movieId = movieId;
     }
 
     if (theatreId) {
-      query.theatre = theatreId;
+      where.theatreId = theatreId;
     }
 
     if (date) {
@@ -28,25 +32,27 @@ router.get('/', async (req, res) => {
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
       
-      query.startTime = { $gte: startOfDay, $lte: endOfDay };
+      where.startTime = { [Op.gte]: startOfDay, [Op.lte]: endOfDay };
     }
 
-    const shows = await Show.find(query)
-      .populate('movie', 'title poster duration')
-      .populate('theatre', 'name address city')
-      .populate('screen', 'name totalSeats seats layout')
-      .sort({ startTime: 1 });
+    const shows = await Show.findAll({
+      where,
+      attributes: ['id', 'movieId', 'theatreId', 'screenId', 'startTime', 'language', 'format', 'basePrice', 'availableSeats'],
+      order: [['startTime', 'ASC']],
+    });
 
     // Filter by city if provided
     let filteredShows = shows;
     if (city) {
-      filteredShows = shows.filter(show => {
-        const theatre = show.theatre;
-        return theatre && theatre.city && theatre.city.toLowerCase().includes(city.toLowerCase());
+      const theatres = await Theatre.findAll({
+        where: { city: { [Op.like]: `%${city}%` } },
+        attributes: ['id']
       });
+      const theatreIds = theatres.map(t => t.id);
+      filteredShows = shows.filter(show => theatreIds.includes(show.theatreId));
     }
 
-    res.json({
+    res.json({  
       success: true,
       data: { shows: filteredShows },
     });
@@ -64,10 +70,7 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const show = await Show.findById(req.params.id)
-      .populate('movie')
-      .populate('theatre')
-      .populate('screen');
+    const show = await Show.findByPk(req.params.id);
 
     if (!show) {
       return res.status(404).json({
@@ -76,8 +79,7 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    // Calculate available seats
-    const screen = show.screen;
+    const screen = await Screen.findByPk(show.screenId);
     const totalSeats = screen.totalSeats || screen.seats.length;
     const bookedSeats = show.bookedSeats || [];
     const availableSeats = totalSeats - bookedSeats.length;
@@ -111,9 +113,9 @@ router.post(
   protect,
   authorize('ADMIN'),
   [
-    body('movie').notEmpty().withMessage('Movie ID is required'),
-    body('theatre').notEmpty().withMessage('Theatre ID is required'),
-    body('screen').notEmpty().withMessage('Screen ID is required'),
+    body('movieId').notEmpty().withMessage('Movie ID is required'),
+    body('theatreId').notEmpty().withMessage('Theatre ID is required'),
+    body('screenId').notEmpty().withMessage('Screen ID is required'),
     body('startTime').isISO8601().withMessage('Start time must be a valid date'),
     body('language').notEmpty().withMessage('Language is required'),
     body('basePrice').isNumeric().withMessage('Base price must be a number'),
@@ -128,10 +130,9 @@ router.post(
         });
       }
 
-      const { movie, theatre, screen, startTime, language, format, basePrice } = req.body;
+      const { movieId, theatreId, screenId, startTime, language, format, basePrice } = req.body;
 
-      // Get screen to calculate end time
-      const screenData = await Screen.findById(screen);
+      const screenData = await Screen.findByPk(screenId);
       if (!screenData) {
         return res.status(404).json({
           success: false,
@@ -139,19 +140,16 @@ router.post(
         });
       }
 
-      // Calculate end time (assuming average movie duration + 20 min buffer)
-      const movieModel = require('../models/Movie');
-      const movieData = await movieModel.findById(movie);
+      const movieData = await Movie.findByPk(movieId);
       const duration = movieData?.duration || 120;
       const endTime = new Date(new Date(startTime).getTime() + (duration + 20) * 60000);
 
-      // Calculate available seats
       const totalSeats = screenData.totalSeats || screenData.seats.length;
 
-      const showData = await Show.create({
-        movie,
-        theatre,
-        screen,
+      const show = await Show.create({
+        movieId,
+        theatreId,
+        screenId,
         startTime: new Date(startTime),
         endTime,
         language,
@@ -160,14 +158,9 @@ router.post(
         availableSeats: totalSeats,
       });
 
-      const createdShow = await Show.findById(showData._id)
-        .populate('movie')
-        .populate('theatre')
-        .populate('screen');
-
       res.status(201).json({
         success: true,
-        data: { show: createdShow },
+        data: { show },
       });
     } catch (error) {
       console.error('Create show error:', error);
@@ -184,14 +177,7 @@ router.post(
 // @access  Private/Admin
 router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
   try {
-    const show = await Show.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    )
-      .populate('movie')
-      .populate('theatre')
-      .populate('screen');
+    const show = await Show.findByPk(req.params.id);
 
     if (!show) {
       return res.status(404).json({
@@ -199,6 +185,8 @@ router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
         message: 'Show not found',
       });
     }
+
+    await show.update(req.body);
 
     res.json({
       success: true,
@@ -218,11 +206,7 @@ router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
 // @access  Private/Admin
 router.delete('/:id', protect, authorize('ADMIN'), async (req, res) => {
   try {
-    const show = await Show.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
-      { new: true }
-    );
+    const show = await Show.findByPk(req.params.id);
 
     if (!show) {
       return res.status(404).json({
@@ -230,6 +214,8 @@ router.delete('/:id', protect, authorize('ADMIN'), async (req, res) => {
         message: 'Show not found',
       });
     }
+
+    await show.update({ isActive: false });
 
     res.json({
       success: true,

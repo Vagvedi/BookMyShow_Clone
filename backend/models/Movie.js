@@ -1,63 +1,88 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-const movieSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, 'Movie title is required'],
-    trim: true,
-  },
-  description: {
-    type: String,
-    required: [true, 'Movie description is required'],
-  },
-  poster: {
-    type: String,
-    required: [true, 'Movie poster URL is required'],
-  },
-  trailer: {
-    type: String,
-  },
-  genre: [{
-    type: String,
-    enum: ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Thriller', 'Sci-Fi', 'Fantasy', 'Animation', 'Documentary'],
-    required: true,
-  }],
-  language: [{
-    type: String,
-    enum: ['Hindi', 'English', 'Tamil', 'Telugu', 'Malayalam', 'Kannada', 'Bengali', 'Marathi'],
-    required: true,
-  }],
-  duration: {
-    type: Number, // in minutes
-    required: [true, 'Movie duration is required'],
-  },
-  releaseDate: {
-    type: Date,
-    required: [true, 'Release date is required'],
-  },
-  rating: {
-    type: Number,
-    min: 0,
-    max: 10,
-    default: 0,
-  },
-  cast: [{
-    name: String,
-    role: String,
-    image: String,
-  }],
-  director: {
-    type: String,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-}, {
-  timestamps: true,
-});
+module.exports = (sequelize) => {
+  const Movie = sequelize.define('Movie', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Movie title is required' },
+      },
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Movie description is required' },
+      },
+    },
+    poster: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Movie poster URL is required' },
+      },
+    },
+    trailer: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    genre: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    language: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Movie duration is required' },
+      },
+    },
+    releaseDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Release date is required' },
+      },
+    },
+    rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+        max: 10,
+      },
+    },
+    cast: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    director: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  }, {
+    timestamps: true,
+    indexes: [
+      { fields: ['title'] },
+      { fields: ['releaseDate'] },
+    ],
+  });
 
-// Index for search
-movieSchema.index({ title: 'text', description: 'text' });
-
-module.exports = mongoose.model('Movie', movieSchema);
+  return Movie;
+};

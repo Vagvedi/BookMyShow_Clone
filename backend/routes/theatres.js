@@ -1,7 +1,9 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const Theatre = require('../models/Theatre');
-const Screen = require('../models/Screen');
+const { Op } = require('sequelize');
+const sequelize = require('../config/database');
+const Theatre = require('../models/Theatre')(sequelize);
+const Screen = require('../models/Screen')(sequelize);
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -12,13 +14,16 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { city } = req.query;
-    const query = { isActive: true };
+    const where = { isActive: true };
     
     if (city) {
-      query.city = new RegExp(city, 'i');
+      where.city = { [Op.like]: `%${city}%` };
     }
 
-    const theatres = await Theatre.find(query).sort({ name: 1 });
+    const theatres = await Theatre.findAll({ 
+      where,
+      order: [['name', 'ASC']]
+    });
 
     res.json({
       success: true,
@@ -38,7 +43,7 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const theatre = await Theatre.findById(req.params.id);
+    const theatre = await Theatre.findByPk(req.params.id);
     
     if (!theatre) {
       return res.status(404).json({
@@ -47,7 +52,9 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    const screens = await Screen.find({ theatre: req.params.id, isActive: true });
+    const screens = await Screen.findAll({ 
+      where: { theatreId: req.params.id, isActive: true }
+    });
 
     res.json({
       success: true,
@@ -108,11 +115,7 @@ router.post(
 // @access  Private/Admin
 router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
   try {
-    const theatre = await Theatre.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const theatre = await Theatre.findByPk(req.params.id);
 
     if (!theatre) {
       return res.status(404).json({
@@ -120,6 +123,8 @@ router.put('/:id', protect, authorize('ADMIN'), async (req, res) => {
         message: 'Theatre not found',
       });
     }
+
+    await theatre.update(req.body);
 
     res.json({
       success: true,
@@ -182,7 +187,7 @@ router.post(
       }
 
       const screen = await Screen.create({
-        theatre: req.params.id,
+        theatreId: req.params.id,
         name,
         totalSeats,
         seats: generatedSeats || [],

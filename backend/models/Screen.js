@@ -1,50 +1,42 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-const seatSchema = new mongoose.Schema({
-  row: {
-    type: String,
-    required: true,
-  },
-  number: {
-    type: Number,
-    required: true,
-  },
-  seatType: {
-    type: String,
-    enum: ['Standard', 'Premium', 'Recliner'],
-    default: 'Standard',
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-}, { _id: false });
+module.exports = (sequelize) => {
+  const Screen = sequelize.define('Screen', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    theatreId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Screen name is required' },
+      },
+    },
+    totalSeats: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    seats: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    layout: {
+      type: DataTypes.JSON,
+      defaultValue: { rows: 0, seatsPerRow: 0 },
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  }, {
+    timestamps: true,
+  });
 
-const screenSchema = new mongoose.Schema({
-  theatre: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Theatre',
-    required: true,
-  },
-  name: {
-    type: String,
-    required: [true, 'Screen name is required'],
-  },
-  totalSeats: {
-    type: Number,
-    required: true,
-  },
-  seats: [seatSchema], // Static seat layout
-  layout: {
-    rows: Number,
-    seatsPerRow: Number,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-}, {
-  timestamps: true,
-});
-
-module.exports = mongoose.model('Screen', screenSchema);
+  return Screen;
+};

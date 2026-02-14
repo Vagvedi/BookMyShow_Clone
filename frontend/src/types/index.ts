@@ -84,6 +84,8 @@ export interface Booking {
   status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Expired';
   payment?: string | Payment;
   bookingReference: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Payment {

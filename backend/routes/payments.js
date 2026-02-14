@@ -1,7 +1,8 @@
 const express = require('express');
+const sequelize = require('../config/database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Booking = require('../models/Booking');
-const Payment = require('../models/Payment');
+const Payment = require('../models/Payment')(sequelize);
+const Booking = require('../models/Booking')(sequelize);
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -20,30 +21,23 @@ router.post('/create-intent', protect, async (req, res) => {
       });
     }
 
-    const booking = await Booking.findOne({
-      _id: bookingId,
-      user: req.user._id,
-      status: 'Pending',
-    })
-      .populate('movie')
-      .populate('theatre');
+    const booking = await Booking.findByPk(bookingId);
 
-    if (!booking) {
+    if (!booking || booking.userId !== req.user.id) {
       return res.status(404).json({
         success: false,
-        message: 'Booking not found or already processed',
+        message: 'Booking not found',
       });
     }
 
     // Create payment record
-    let payment = await Payment.findOne({ booking: bookingId });
+    let payment = await Payment.findOne({ where: { bookingId } });
     
     if (!payment) {
       payment = await Payment.create({
-        booking: bookingId,
-        user: req.user._id,
+        bookingId,
+        userId: req.user.id,
         amount: booking.totalAmount,
-        currency: 'INR',
         status: 'Pending',
       });
     }
@@ -53,16 +47,14 @@ router.post('/create-intent', protect, async (req, res) => {
       amount: Math.round(booking.totalAmount * 100), // Convert to paise
       currency: 'inr',
       metadata: {
-        bookingId: booking._id.toString(),
-        userId: req.user._id.toString(),
-        paymentId: payment._id.toString(),
+        bookingId: booking.id,
+        userId: req.user.id,
+        paymentId: payment.id,
       },
-      description: `Booking for ${booking.movie.title} at ${booking.theatre.name}`,
     });
 
     // Update payment with intent ID
-    payment.stripePaymentIntentId = paymentIntent.id;
-    await payment.save();
+    await payment.update({ stripePaymentIntentId: paymentIntent.id });
 
     res.json({
       success: true,
@@ -106,8 +98,10 @@ router.post('/confirm', protect, async (req, res) => {
 
     // Find payment and booking
     const payment = await Payment.findOne({
-      stripePaymentIntentId: paymentIntentId,
-      booking: bookingId,
+      where: {
+        stripePaymentIntentId: paymentIntentId,
+        bookingId,
+      },
     });
 
     if (!payment) {
@@ -125,36 +119,27 @@ router.post('/confirm', protect, async (req, res) => {
     }
 
     // Update payment status
-    payment.status = 'Success';
-    payment.stripeChargeId = paymentIntent.charges.data[0]?.id || '';
-    await payment.save();
+    await payment.update({
+      status: 'Success',
+      stripeChargeId: paymentIntent.charges.data[0]?.id || '',
+    });
 
     // Update booking status
-    const booking = await Booking.findById(bookingId);
-    if (booking) {
-      booking.status = 'Confirmed';
-      booking.payment = payment._id;
-      await booking.save();
+    const booking = await Booking.findByPk(bookingId);
+    if (booking && booking.userId === req.user.id) {
+      await booking.update({ status: 'Confirmed' });
 
       // Send confirmation email (mocked - would use nodemailer in production)
-      console.log(`Booking confirmed for ${req.user.email}`);
+      console.log(`Booking confirmed for user ${req.user.email}`);
       console.log(`Booking Reference: ${booking.bookingReference}`);
-      console.log(`Movie: ${booking.movie}`);
       console.log(`Amount: ₹${booking.totalAmount}`);
     }
-
-    const updatedBooking = await Booking.findById(bookingId)
-      .populate('movie')
-      .populate('theatre')
-      .populate('screen')
-      .populate('show')
-      .populate('payment');
 
     res.json({
       success: true,
       message: 'Payment confirmed successfully',
       data: {
-        booking: updatedBooking,
+        booking,
         payment,
       },
     });
@@ -173,9 +158,11 @@ router.post('/confirm', protect, async (req, res) => {
 router.get('/:id', protect, async (req, res) => {
   try {
     const payment = await Payment.findOne({
-      _id: req.params.id,
-      user: req.user._id,
-    }).populate('booking');
+      where: {
+        id: req.params.id,
+        userId: req.user.id,
+      },
+    });
 
     if (!payment) {
       return res.status(404).json({

@@ -1,60 +1,69 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-const showSchema = new mongoose.Schema({
-  movie: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Movie',
-    required: true,
-  },
-  theatre: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Theatre',
-    required: true,
-  },
-  screen: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Screen',
-    required: true,
-  },
-  startTime: {
-    type: Date,
-    required: [true, 'Show start time is required'],
-  },
-  endTime: {
-    type: Date,
-    required: [true, 'Show end time is required'],
-  },
-  language: {
-    type: String,
-    required: true,
-  },
-  format: {
-    type: String,
-    enum: ['2D', '3D', 'IMAX', '4DX'],
-    default: '2D',
-  },
-  basePrice: {
-    type: Number,
-    required: true,
-  },
-  availableSeats: {
-    type: Number,
-    default: 0,
-  },
-  bookedSeats: [{
-    row: String,
-    number: Number,
-  }],
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-}, {
-  timestamps: true,
-});
+module.exports = (sequelize) => {
+  const Show = sequelize.define('Show', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    movieId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    theatreId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    screenId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    startTime: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Show start time is required' },
+      },
+    },
+    endTime: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'Show end time is required' },
+      },
+    },
+    language: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    format: {
+      type: DataTypes.ENUM('2D', '3D', 'IMAX', '4DX'),
+      defaultValue: '2D',
+    },
+    basePrice: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    availableSeats: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    bookedSeats: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  }, {
+    timestamps: true,
+    indexes: [
+      { fields: ['movieId', 'theatreId', 'startTime'] },
+      { fields: ['startTime'] },
+    ],
+  });
 
-// Index for efficient queries
-showSchema.index({ movie: 1, theatre: 1, startTime: 1 });
-showSchema.index({ startTime: 1 });
-
-module.exports = mongoose.model('Show', showSchema);
+  return Show;
+};

@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
+const sequelize = require('../config/database');
+const User = require('../models/User')(sequelize);
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -28,7 +29,7 @@ router.post(
       const { name, email, password, phone, city } = req.body;
 
       // Check if user exists
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         return res.status(400).json({
           success: false,
@@ -52,7 +53,7 @@ router.post(
         success: true,
         data: {
           user: {
-            id: user._id,
+            id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -92,8 +93,8 @@ router.post(
 
       const { email, password } = req.body;
 
-      // Check if user exists and get password
-      const user = await User.findOne({ email }).select('+password');
+      // Check if user exists
+      const user = await User.findOne({ where: { email } });
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -117,7 +118,7 @@ router.post(
         success: true,
         data: {
           user: {
-            id: user._id,
+            id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -141,12 +142,12 @@ router.post(
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     res.json({
       success: true,
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
@@ -170,17 +171,19 @@ router.get('/me', protect, async (req, res) => {
 router.put('/update-profile', protect, async (req, res) => {
   try {
     const { name, phone, city } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { name, phone, city },
-      { new: true, runValidators: true }
-    );
+    const user = await User.findByPk(req.user.id);
+    
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (city) user.city = city;
+    
+    await user.save();
 
     res.json({
       success: true,
       data: {
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
