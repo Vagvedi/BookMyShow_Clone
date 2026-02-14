@@ -1,6 +1,6 @@
 # BookMyShow Clone - Full Stack Movie Ticket Booking Application
 
-A full-featured movie ticket booking platform built with React, TypeScript, Node.js, Express, and MongoDB. This application mimics the core functionality of BookMyShow, including movie listings, theatre management, seat selection, booking, and payment processing.
+A full-featured movie ticket booking platform built with React, TypeScript, Node.js, Express, and MySQL. This application mimics the core functionality of BookMyShow, including movie listings, theatre management, seat selection, booking, and payment processing.
 
 ## 🚀 Features
 
@@ -45,25 +45,32 @@ A full-featured movie ticket booking platform built with React, TypeScript, Node
 ## 🛠️ Tech Stack
 
 ### Frontend
-- React 18 with TypeScript
-- Tailwind CSS for styling
-- Redux Toolkit for state management
-- React Query for data fetching
-- React Router for navigation
-- Stripe React for payment processing
+- **React 18** with TypeScript
+- **Vite** as build tool and dev server
+- **Tailwind CSS** for styling
+- **Redux Toolkit** for state management
+- **React Query (@tanstack/react-query)** for data fetching
+- **React Router** for navigation
+- **Stripe React** for payment processing
 
 ### Backend
-- Node.js with Express
-- MongoDB with Mongoose
-- JWT for authentication
-- bcryptjs for password hashing
-- Stripe API for payments
-- Express Validator for input validation
+- **Node.js** with Express
+- **MySQL** with Sequelize ORM
+- **JWT** for authentication
+- **bcryptjs** for password hashing
+- **Stripe API** for payments
+- **Express Validator** for input validation
+- **Nodemailer** for email services
+- **CORS** for cross-origin requests
+
+### Database
+- **MySQL** as primary database
+- **Sequelize** as ORM for database operations
 
 ## 📋 Prerequisites
 
 - Node.js (v16 or higher)
-- MongoDB (local installation or MongoDB Atlas)
+- MySQL (local installation or MySQL cloud service)
 - Stripe account (for payment processing - test mode is fine)
 
 ## 🔧 Installation & Setup
@@ -71,16 +78,59 @@ A full-featured movie ticket booking platform built with React, TypeScript, Node
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd BookMyShow
+git clone https://github.com/Vagvedi/BookMyShow_Clone.git
+cd BookMyShow_Clone
 ```
 
-### 2. Install Dependencies
+### 2. Database Setup
 
-Install root dependencies:
-```bash
-npm install
+Create a MySQL database named `bookmyshow`:
+
+```sql
+CREATE DATABASE bookmyshow;
 ```
+
+### 3. Environment Variables
+
+#### Backend (.env)
+Create a `.env` file in the `backend` directory:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=bookmyshow
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRE=7d
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+STRIPE_PUBLIC_KEY=your_stripe_public_key_here
+
+# Email Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_email_password
+```
+
+#### Frontend (.env)
+Create a `.env` file in the `frontend` directory:
+
+```env
+VITE_API_URL=http://localhost:5000/api/v1
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+```
+
+### 4. Install Dependencies
 
 Install backend dependencies:
 ```bash
@@ -94,72 +144,80 @@ cd ../frontend
 npm install
 ```
 
-Or use the convenience script:
-```bash
-npm run install-all
-```
-
-### 3. Environment Variables
-
-#### Backend (.env)
-Create a `.env` file in the `backend` directory:
-
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/bookmyshow
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
-JWT_EXPIRE=7d
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-NODE_ENV=development
-```
-
-#### Frontend (.env)
-Create a `.env` file in the `frontend` directory:
-
-```env
-REACT_APP_API_URL=http://localhost:5000/api/v1
-REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
-```
-
-### 4. Start MongoDB
-
-Make sure MongoDB is running on your system:
-
-```bash
-# If using local MongoDB
-mongod
-
-# Or use MongoDB Atlas connection string in MONGODB_URI
-```
-
 ### 5. Run the Application
 
-#### Option 1: Run Both Frontend and Backend Together
+#### Terminal 1 - Backend:
 ```bash
-npm run dev
-```
-
-#### Option 2: Run Separately
-
-Terminal 1 - Backend:
-```bash
-npm run server
-# or
 cd backend
 npm run dev
 ```
 
-Terminal 2 - Frontend:
+#### Terminal 2 - Frontend:
 ```bash
-npm run client
-# or
 cd frontend
-npm start
+npm run dev
 ```
 
 The backend will run on `http://localhost:5000`
 The frontend will run on `http://localhost:3000`
+
+## 📁 Project Structure
+
+```
+BookMyShow_Clone/
+├── backend/                    # Node.js Express API
+│   ├── config/                # Database configuration
+│   ├── middleware/            # Custom middleware
+│   ├── models/               # Sequelize models
+│   │   ├── User.js
+│   │   ├── Movie.js
+│   │   ├── Theatre.js
+│   │   ├── Screen.js
+│   │   ├── Show.js
+│   │   ├── Booking.js
+│   │   └── Payment.js
+│   ├── routes/               # API routes
+│   │   ├── auth.js
+│   │   ├── movies.js
+│   │   ├── theatres.js
+│   │   ├── shows.js
+│   │   ├── bookings.js
+│   │   ├── payments.js
+│   │   └── admin.js
+│   ├── .env                  # Environment variables
+│   ├── package.json
+│   └── server.js             # Express server
+├── frontend/                  # React TypeScript App
+│   ├── public/               # Static assets
+│   ├── src/
+│   │   ├── components/       # Reusable components
+│   │   │   ├── Layout/
+│   │   │   └── Auth/
+│   │   ├── pages/           # Page components
+│   │   │   ├── Auth/
+│   │   │   ├── Admin/
+│   │   │   ├── Home.tsx
+│   │   │   ├── Movies.tsx
+│   │   │   ├── MovieDetail.tsx
+│   │   │   ├── Shows.tsx
+│   │   │   ├── SeatSelection.tsx
+│   │   │   ├── BookingSummary.tsx
+│   │   │   ├── Payment.tsx
+│   │   │   ├── BookingConfirmation.tsx
+│   │   │   ├── Bookings.tsx
+│   │   │   └── Profile.tsx
+│   │   ├── services/        # API services
+│   │   ├── store/           # Redux store
+│   │   ├── types/           # TypeScript types
+│   │   ├── App.tsx          # Main App component
+│   │   ├── main.tsx         # Entry point
+│   │   └── index.css        # Global styles
+│   ├── index.html           # HTML template
+│   ├── package.json
+│   ├── vite.config.ts       # Vite configuration
+│   └── tailwind.config.js   # Tailwind configuration
+└── README.md
+```
 
 ## 📚 API Endpoints
 
@@ -209,13 +267,13 @@ The frontend will run on `http://localhost:3000`
 
 ## 🗄️ Database Models
 
-- **User**: name, email, password, phone, role, city
-- **Movie**: title, description, poster, trailer, genre, language, duration, releaseDate, rating, cast, director
-- **Theatre**: name, city, address, location, amenities, contact
-- **Screen**: theatre, name, totalSeats, seats (layout), layout
-- **Show**: movie, theatre, screen, startTime, endTime, language, format, basePrice, availableSeats, bookedSeats
-- **Booking**: user, show, movie, theatre, screen, seats, totalAmount, bookingDate, showDate, status, payment, bookingReference
-- **Payment**: booking, user, amount, currency, paymentMethod, stripePaymentIntentId, status, transactionId
+- **User**: id, name, email, password, phone, role, city, createdAt, updatedAt
+- **Movie**: id, title, description, poster, trailer, genre, language, duration, releaseDate, rating, cast, director, isActive, createdAt, updatedAt
+- **Theatre**: id, name, city, address, location, amenities, contact, isActive, createdAt, updatedAt
+- **Screen**: id, theatreId, name, totalSeats, seats, layout, isActive, createdAt, updatedAt
+- **Show**: id, movieId, theatreId, screenId, startTime, endTime, language, format, basePrice, availableSeats, bookedSeats, isActive, createdAt, updatedAt
+- **Booking**: id, userId, showId, movieId, theatreId, screenId, seats, totalAmount, bookingDate, showDate, showTime, status, paymentId, bookingReference, createdAt, updatedAt
+- **Payment**: id, bookingId, userId, amount, currency, paymentMethod, stripePaymentIntentId, stripeChargeId, status, transactionId, paidAt, createdAt, updatedAt
 
 ## 🎨 UI Features
 
@@ -247,9 +305,9 @@ Use Stripe test cards in payment form:
 
 To test the application, you'll need to:
 
-1. **Create an Admin User**: Register a user and manually update the role in MongoDB:
-   ```javascript
-   db.users.updateOne({email: "admin@example.com"}, {$set: {role: "ADMIN"}})
+1. **Create an Admin User**: Register a user and manually update the role in MySQL:
+   ```sql
+   UPDATE Users SET role = 'ADMIN' WHERE email = 'admin@example.com';
    ```
 
 2. **Add Movies**: Use the admin panel or API to add movies
@@ -260,10 +318,10 @@ To test the application, you'll need to:
 
 ## 🐛 Troubleshooting
 
-### MongoDB Connection Issues
-- Ensure MongoDB is running
-- Check MONGODB_URI in .env file
-- Verify network connectivity if using MongoDB Atlas
+### MySQL Connection Issues
+- Ensure MySQL is running
+- Check database credentials in .env file
+- Verify database exists and user has permissions
 
 ### Stripe Payment Issues
 - Verify Stripe keys in .env files
@@ -276,7 +334,12 @@ To test the application, you'll need to:
 
 ### Port Already in Use
 - Change PORT in backend .env
-- Update REACT_APP_API_URL in frontend .env accordingly
+- Update VITE_API_URL in frontend .env accordingly
+
+### Frontend Build Issues
+- Ensure all dependencies are installed
+- Check TypeScript configuration
+- Verify Vite configuration
 
 ## 🚧 Future Enhancements
 
