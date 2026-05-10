@@ -1,372 +1,423 @@
-# BookMyShow Clone - Movie Ticket Booking Application
+# BookMyShow Clone - Full Stack Movie Ticket Booking Application
 
 A full-featured movie ticket booking platform built with React, TypeScript, Node.js, Express, and MySQL. This application mimics the core functionality of BookMyShow, including movie listings, theatre management, seat selection, booking, and payment processing.
 
 ##  Features
 
-### Core Features
+### 🎯 Core Functionality
+- **🔐 Secure Authentication** – JWT-based auth with role-based access control
+- **🎬 Movie Management** – Browse, search, and filter movies with rich metadata
+- **🏪 Theatre & Shows** – Dynamic theatre listings with real-time show schedules
+- **💺 Interactive Seat Selection** – Visual seat layout with real-time availability
+- **💳 Payment Processing** – Stripe integration for secure transactions
+- **👤 User Profiles** – Personal dashboards with booking history
+- **🛡️ Admin Panel** – Comprehensive admin dashboard for content management
 
-- **Authentication & Authorization**
-  - User registration and login
-  - JWT-based authentication
-  - Role-based access control (USER, ADMIN)
-  - Secure password hashing with bcrypt
+### 🎨 User Experience
+- **📱 Responsive Design** – Mobile-first approach with seamless cross-device experience
+- **⚡ Lightning Fast** – Optimized performance with instant loading
+- **🎭 Modern UI** – Clean, intuitive interface inspired by BookMyShow
+- **🔄 Real-time Updates** – Live seat availability and booking status
+- **📊 Analytics Dashboard** – Revenue metrics and usage statistics
 
-- **Movie Management**
-  - Browse movies with posters, genres, languages, and ratings
-  - Movie detail pages with cast, duration, synopsis, and trailer
-  - Search and filter movies by genre, language, and city
-  - Admin panel for adding/editing/deleting movies
-
-- **Theatre & Show Management**
-  - Theatre listings by city
-  - Multiple screens per theatre
-  - Dynamic show timings per movie
-  - Admin panel for managing theatres, screens, and shows
-
-- **Seat Booking**
-  - Interactive seat selection UI with visual seat layout
-  - Seat states: available, selected, booked
-  - Prevents double booking
-  - Dynamic pricing based on seat type
-
-- **Booking & Payments**
-  - Booking summary page
-  - Stripe payment integration (test mode)
-  - Booking confirmation and history
-  - Email confirmation (console-based for now)
-
-- **Admin Panel**
-  - Dashboard with revenue metrics
-  - Manage movies, theatres, screens, and shows
-  - View all bookings and transactions
-  - Configure seat layouts and pricing
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** with TypeScript
-- **Vite** as build tool and dev server
-- **Tailwind CSS** for styling
-- **Redux Toolkit** for state management
-- **React Query (@tanstack/react-query)** for data fetching
-- **React Router** for navigation
-- **Stripe React** for payment processing
+<table>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="40" height="40" alt="React"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="40" height="40" alt="TypeScript"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="40" height="40" alt="Vite"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="40" height="40" alt="Tailwind CSS"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg" width="40" height="40" alt="Redux"/></td>
+</tr>
+<tr>
+<td align="center">React 18</td>
+<td align="center">TypeScript</td>
+<td align="center">Vite</td>
+<td align="center">Tailwind CSS</td>
+<td align="center">Redux Toolkit</td>
+</tr>
+</table>
 
 ### Backend
-- **Node.js** with Express
-- **MySQL** with Sequelize ORM
-- **JWT** for authentication
-- **bcryptjs** for password hashing
-- **Stripe API** for payments
-- **Express Validator** for input validation
-- **Nodemailer** for email services
-- **CORS** for cross-origin requests
+<table>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="40" height="40" alt="Node.js"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" width="40" height="40" alt="Express"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="40" height="40" alt="MySQL"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sequelize/sequelize-original.svg" width="40" height="40" alt="Sequelize"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jwt/jwt-original.svg" width="40" height="40" alt="JWT"/></td>
+</tr>
+<tr>
+<td align="center">Node.js</td>
+<td align="center">Express.js</td>
+<td align="center">MySQL</td>
+<td align="center">Sequelize ORM</td>
+<td align="center">JWT Auth</td>
+</tr>
+</table>
 
-### Database
-- **MySQL** as primary database
-- **Sequelize** as ORM for database operations
+### Tools & Services
+<table>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="40" height="40" alt="Git"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="40" height="40" alt="NPM"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/stripe/stripe-original.svg" width="40" height="40" alt="Stripe"/></td>
+<td><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" width="40" height="40" alt="VS Code"/></td>
+</tr>
+<tr>
+<td align="center">Git</td>
+<td align="center">NPM</td>
+<td align="center">Stripe</td>
+<td align="center">VS Code</td>
+</tr>
+</table>
 
-## 📋 Prerequisites
+---
 
-- Node.js (v16 or higher)
-- MySQL (local installation or MySQL cloud service)
-- Stripe account (for payment processing - test mode is fine)
+## 🚀 Quick Start
 
-## 🔧 Installation & Setup
+### Prerequisites
+- Node.js 16+ and npm
+- MySQL 8.0+
+- Git
 
-### 1. Clone the Repository
+### Installation
 
-```bash
-git clone https://github.com/Vagvedi/BookMyShow_Clone.git
-cd BookMyShow_Clone
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Vagvedi/BookMyShow_Clone.git
+   cd BookMyShow_Clone
+   ```
 
-### 2. Database Setup
+2. **Setup Database**
+   ```sql
+   CREATE DATABASE bookmyshow;
+   ```
 
-Create a MySQL database named `bookmyshow`:
+3. **Environment Configuration**
+   
+   Backend (`.env`):
+   ```env
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_USER=root
+   DB_PASSWORD=your_password
+   DB_NAME=bookmyshow
+   PORT=5000
+   JWT_SECRET=your_secret_key
+   STRIPE_SECRET_KEY=sk_test_...
+   ```
+   
+   Frontend (`.env`):
+   ```env
+   VITE_API_URL=http://localhost:5000/api/v1
+   VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+   ```
 
-```sql
-CREATE DATABASE bookmyshow;
-```
+4. **Install Dependencies**
+   ```bash
+   # Backend
+   cd backend && npm install
+   
+   # Frontend
+   cd ../frontend && npm install
+   ```
 
-### 3. Environment Variables
+5. **Run the Application**
+   ```bash
+   # Terminal 1 - Backend
+   cd backend && npm run dev
+   
+   # Terminal 2 - Frontend
+   cd frontend && npm run dev
+   ```
 
-#### Backend (.env)
-Create a `.env` file in the `backend` directory:
+🎉 **Open** [http://localhost:3000](http://localhost:3000) to view the application!
 
-```env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_mysql_password
-DB_NAME=bookmyshow
-
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# JWT Configuration
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRE=7d
-
-# Stripe Configuration
-STRIPE_SECRET_KEY=your_stripe_secret_key_here
-STRIPE_PUBLIC_KEY=your_stripe_public_key_here
-
-# Email Configuration
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_email_password
-```
-
-#### Frontend (.env)
-Create a `.env` file in the `frontend` directory:
-
-```env
-VITE_API_URL=http://localhost:5000/api/v1
-VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-```
-
-### 4. Install Dependencies
-
-Install backend dependencies:
-```bash
-cd backend
-npm install
-```
-
-Install frontend dependencies:
-```bash
-cd ../frontend
-npm install
-```
-
-### 5. Run the Application
-
-#### Terminal 1 - Backend:
-```bash
-cd backend
-npm run dev
-```
-
-#### Terminal 2 - Frontend:
-```bash
-cd frontend
-npm run dev
-```
-
-The backend will run on `http://localhost:5000`
-The frontend will run on `http://localhost:3000`
+---
 
 ## 📁 Project Structure
 
 ```
 BookMyShow_Clone/
-├── backend/                    # Node.js Express API
-│   ├── config/                # Database configuration
-│   ├── middleware/            # Custom middleware
-│   ├── models/               # Sequelize models
-│   │   ├── User.js
-│   │   ├── Movie.js
-│   │   ├── Theatre.js
-│   │   ├── Screen.js
-│   │   ├── Show.js
-│   │   ├── Booking.js
-│   │   └── Payment.js
-│   ├── routes/               # API routes
-│   │   ├── auth.js
-│   │   ├── movies.js
-│   │   ├── theatres.js
-│   │   ├── shows.js
-│   │   ├── bookings.js
-│   │   ├── payments.js
-│   │   └── admin.js
-│   ├── .env                  # Environment variables
-│   ├── package.json
-│   └── server.js             # Express server
-├── frontend/                  # React TypeScript App
-│   ├── public/               # Static assets
-│   ├── src/
-│   │   ├── components/       # Reusable components
-│   │   │   ├── Layout/
-│   │   │   └── Auth/
-│   │   ├── pages/           # Page components
-│   │   │   ├── Auth/
-│   │   │   ├── Admin/
-│   │   │   ├── Home.tsx
-│   │   │   ├── Movies.tsx
-│   │   │   ├── MovieDetail.tsx
-│   │   │   ├── Shows.tsx
-│   │   │   ├── SeatSelection.tsx
-│   │   │   ├── BookingSummary.tsx
-│   │   │   ├── Payment.tsx
-│   │   │   ├── BookingConfirmation.tsx
-│   │   │   ├── Bookings.tsx
-│   │   │   └── Profile.tsx
-│   │   ├── services/        # API services
-│   │   ├── store/           # Redux store
-│   │   ├── types/           # TypeScript types
-│   │   ├── App.tsx          # Main App component
-│   │   ├── main.tsx         # Entry point
-│   │   └── index.css        # Global styles
-│   ├── index.html           # HTML template
-│   ├── package.json
-│   ├── vite.config.ts       # Vite configuration
-│   └── tailwind.config.js   # Tailwind configuration
-└── README.md
+├── 📂 backend/                    # Node.js Express API
+│   ├── 📂 config/                 # Database configuration
+│   ├── 📂 middleware/             # Custom middleware
+│   ├── 📂 models/                 # Sequelize models
+│   │   ├── 📄 User.js
+│   │   ├── 📄 Movie.js
+│   │   ├── 📄 Theatre.js
+│   │   ├── 📄 Screen.js
+│   │   ├── 📄 Show.js
+│   │   ├── 📄 Booking.js
+│   │   └── 📄 Payment.js
+│   ├── 📂 routes/                 # API routes
+│   │   ├── 📄 auth.js
+│   │   ├── 📄 movies.js
+│   │   ├── 📄 theatres.js
+│   │   ├── 📄 shows.js
+│   │   ├── 📄 bookings.js
+│   │   ├── 📄 payments.js
+│   │   └── 📄 admin.js
+│   ├── 📄 .env                    # Environment variables
+│   ├── 📄 package.json
+│   └── 📄 server.js               # Express server
+├── 📂 frontend/                   # React TypeScript App
+│   ├── 📂 public/                 # Static assets
+│   ├── 📂 src/
+│   │   ├── 📂 components/         # Reusable components
+│   │   ├── 📂 pages/              # Page components
+│   │   ├── 📂 services/           # API services
+│   │   ├── 📂 store/              # Redux store
+│   │   ├── 📂 types/              # TypeScript types
+│   │   ├── 📄 App.tsx             # Main App component
+│   │   └── 📄 main.tsx            # Entry point
+│   ├── 📄 index.html              # HTML template
+│   ├── 📄 package.json
+│   └── 📄 vite.config.ts          # Vite configuration
+└── 📄 README.md
 ```
-
-## 📚 API Endpoints
-
-### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login user
-- `GET /api/v1/auth/me` - Get current user (Protected)
-- `PUT /api/v1/auth/update-profile` - Update user profile (Protected)
-
-### Movies
-- `GET /api/v1/movies` - Get all movies (with filters)
-- `GET /api/v1/movies/:id` - Get movie by ID
-- `POST /api/v1/movies` - Create movie (Admin only)
-- `PUT /api/v1/movies/:id` - Update movie (Admin only)
-- `DELETE /api/v1/movies/:id` - Delete movie (Admin only)
-
-### Theatres
-- `GET /api/v1/theatres` - Get all theatres
-- `GET /api/v1/theatres/:id` - Get theatre with screens
-- `POST /api/v1/theatres` - Create theatre (Admin only)
-- `PUT /api/v1/theatres/:id` - Update theatre (Admin only)
-- `POST /api/v1/theatres/:id/screens` - Create screen (Admin only)
-
-### Shows
-- `GET /api/v1/shows` - Get shows (with filters)
-- `GET /api/v1/shows/:id` - Get show with seat availability
-- `POST /api/v1/shows` - Create show (Admin only)
-- `PUT /api/v1/shows/:id` - Update show (Admin only)
-- `DELETE /api/v1/shows/:id` - Delete show (Admin only)
-
-### Bookings
-- `POST /api/v1/bookings` - Create booking (Protected)
-- `GET /api/v1/bookings` - Get user's bookings (Protected)
-- `GET /api/v1/bookings/:id` - Get booking by ID (Protected)
-- `PUT /api/v1/bookings/:id/cancel` - Cancel booking (Protected)
-
-### Payments
-- `POST /api/v1/payments/create-intent` - Create Stripe payment intent (Protected)
-- `POST /api/v1/payments/confirm` - Confirm payment (Protected)
-- `GET /api/v1/payments/:id` - Get payment details (Protected)
-
-### Admin
-- `GET /api/v1/admin/stats` - Get dashboard statistics (Admin only)
-- `GET /api/v1/admin/bookings` - Get all bookings (Admin only)
-- `GET /api/v1/admin/movies` - Get all movies (Admin only)
-- `GET /api/v1/admin/theatres` - Get all theatres (Admin only)
-
-## 🗄️ Database Models
-
-- **User**: id, name, email, password, phone, role, city, createdAt, updatedAt
-- **Movie**: id, title, description, poster, trailer, genre, language, duration, releaseDate, rating, cast, director, isActive, createdAt, updatedAt
-- **Theatre**: id, name, city, address, location, amenities, contact, isActive, createdAt, updatedAt
-- **Screen**: id, theatreId, name, totalSeats, seats, layout, isActive, createdAt, updatedAt
-- **Show**: id, movieId, theatreId, screenId, startTime, endTime, language, format, basePrice, availableSeats, bookedSeats, isActive, createdAt, updatedAt
-- **Booking**: id, userId, showId, movieId, theatreId, screenId, seats, totalAmount, bookingDate, showDate, showTime, status, paymentId, bookingReference, createdAt, updatedAt
-- **Payment**: id, bookingId, userId, amount, currency, paymentMethod, stripePaymentIntentId, stripeChargeId, status, transactionId, paidAt, createdAt, updatedAt
-
-## 🎨 UI Features
-
-- Responsive design (mobile-first approach)
-- Clean and modern UI inspired by BookMyShow
-- Interactive seat selection with visual feedback
-- Loading states and error handling
-- Modal dialogs for actions
-- Form validation
-- Toast notifications (via alerts for now)
-
-## 🔐 Security Features
-
-- JWT token-based authentication
-- Password hashing with bcrypt
-- Protected routes with role-based access
-- Input validation and sanitization
-- CORS configuration
-- Secure payment processing with Stripe
-
-## 🧪 Testing Payments
-
-Use Stripe test cards in payment form:
-- **Card Number**: 4242 4242 4242 4242
-- **Expiry**: Any future date
-- **CVC**: Any 3 digits
-
-## 📝 Sample Data
-
-To test the application, you'll need to:
-
-1. **Create an Admin User**: Register a user and manually update the role in MySQL:
-   ```sql
-   UPDATE Users SET role = 'ADMIN' WHERE email = 'admin@example.com';
-   ```
-
-2. **Add Movies**: Use the admin panel or API to add movies
-
-3. **Add Theatres**: Use the admin panel or API to add theatres and screens
-
-4. **Create Shows**: Use the admin panel or API to create shows for movies
-
-## 🐛 Troubleshooting
-
-### MySQL Connection Issues
-- Ensure MySQL is running
-- Check database credentials in .env file
-- Verify database exists and user has permissions
-
-### Stripe Payment Issues
-- Verify Stripe keys in .env files
-- Check that you're using test keys (sk_test_... and pk_test_...)
-- Ensure payment intent is created before confirmation
-
-### CORS Issues
-- Check backend CORS configuration
-- Verify API URL in frontend .env
-
-### Port Already in Use
-- Change PORT in backend .env
-- Update VITE_API_URL in frontend .env accordingly
-
-### Frontend Build Issues
-- Ensure all dependencies are installed
-- Check TypeScript configuration
-- Verify Vite configuration
-
-## 🚧 Future Enhancements
-
-- [ ] Email service integration (SendGrid/Nodemailer)
-- [ ] Real-time seat locking during booking
-- [ ] Promo codes and discounts
-- [ ] Movie ratings and reviews
-- [ ] Dark mode
-- [ ] Docker containerization
-- [ ] Unit and integration tests
-- [ ] WebSocket for real-time updates
-- [ ] Image upload for movie posters
-- [ ] Advanced search with filters
-- [ ] Booking reminder notifications
-
-## 📄 License
-
-This project is licensed under the ISC License.
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📞 Support
-
-For issues and questions, please open an issue on the GitHub repository.
 
 ---
 
-**Note**: This is a clone project for educational purposes. Make sure to update all environment variables and security keys before deploying to production.
+## 📚 Documentation
+
+### API Endpoints
+
+#### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/auth/register` | Register new user |
+| `POST` | `/api/v1/auth/login` | User login |
+| `GET` | `/api/v1/auth/me` | Get current user |
+
+#### Movies
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/movies` | Get all movies |
+| `GET` | `/api/v1/movies/:id` | Get movie by ID |
+| `POST` | `/api/v1/movies` | Create movie (Admin) |
+
+#### Bookings
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/bookings` | Create booking |
+| `GET` | `/api/v1/bookings` | Get user bookings |
+| `PUT` | `/api/v1/bookings/:id/cancel` | Cancel booking |
+
+### Database Schema
+
+```mermaid
+erDiagram
+    User ||--o{ Booking : places
+    Movie ||--o{ Show : has
+    Theatre ||--o{ Show : hosts
+    Theatre ||--o{ Screen : contains
+    Screen ||--o{ Show : scheduled
+    Show ||--o{ Booking : generates
+    Booking ||--|| Payment : processes
+    
+    User {
+        int id PK
+        string name
+        string email UK
+        string password
+        string role
+        string city
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Movie {
+        int id PK
+        string title
+        text description
+        string poster
+        json genre
+        json language
+        int duration
+        datetime releaseDate
+        float rating
+        boolean isActive
+    }
+    
+    Theatre {
+        int id PK
+        string name
+        string city
+        text address
+        json location
+        json amenities
+        boolean isActive
+    }
+    
+    Screen {
+        int id PK
+        int theatreId FK
+        string name
+        int totalSeats
+        json seats
+        json layout
+        boolean isActive
+    }
+    
+    Show {
+        int id PK
+        int movieId FK
+        int theatreId FK
+        int screenId FK
+        datetime startTime
+        datetime endTime
+        string language
+        enum format
+        float basePrice
+        int availableSeats
+        json bookedSeats
+        boolean isActive
+    }
+    
+    Booking {
+        int id PK
+        int userId FK
+        int showId FK
+        json seats
+        float totalAmount
+        datetime showDate
+        enum status
+        string bookingReference UK
+        datetime createdAt
+    }
+    
+    Payment {
+        int id PK
+        int bookingId FK
+        int userId FK
+        float amount
+        string currency
+        enum paymentMethod
+        string stripePaymentIntentId
+        enum status
+        string transactionId UK
+        datetime paidAt
+    }
+```
+
+---
+
+## 🎯 Usage Guide
+
+### For Users
+1. **Register/Login** – Create account or sign in
+2. **Browse Movies** – Explore movies by genre, language, or city
+3. **Select Show** – Choose theatre, date, and time
+4. **Pick Seats** – Interactive seat selection with pricing
+5. **Make Payment** – Secure Stripe payment processing
+6. **Get Confirmation** – Receive booking details and QR code
+
+### For Admins
+1. **Access Admin Panel** – Login with admin credentials
+2. **Manage Movies** – Add, edit, or remove movies
+3. **Setup Theatres** – Configure theatres and screens
+4. **Schedule Shows** – Create show timings and pricing
+5. **Monitor Bookings** – View analytics and revenue
+6. **Handle Payments** – Track transactions and refunds
+
+---
+
+## 🧪 Testing
+
+### Payment Testing
+Use Stripe test cards:
+- **Card Number**: `4242 4242 4242 4242`
+- **Expiry**: Any future date
+- **CVC**: Any 3 digits
+
+### Test Data
+```sql
+-- Create admin user
+UPDATE Users SET role = 'ADMIN' WHERE email = 'admin@example.com';
+
+-- Sample movie insertion
+INSERT INTO Movies (title, description, poster, genre, language, duration, releaseDate, rating) 
+VALUES ('Inception', 'A mind-bending thriller...', 'poster.jpg', '["Action","Sci-Fi"]', '["English"]', 148, '2024-01-01', 8.8);
+```
+
+---
+
+## 🔧 Development
+
+### Scripts
+```bash
+# Backend
+npm run dev          # Start development server
+npm start            # Start production server
+
+# Frontend
+npm run dev          # Start Vite dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run type-check   # TypeScript type checking
+```
+
+### Environment Variables
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DB_HOST` | Database host | ✅ |
+| `DB_PASSWORD` | Database password | ✅ |
+| `JWT_SECRET` | JWT secret key | ✅ |
+| `STRIPE_SECRET_KEY` | Stripe secret key | ✅ |
+| `VITE_API_URL` | Frontend API URL | ✅ |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | ✅ |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+- Follow the existing code style
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting
+
+---
+
+## 📄 License
+
+This project is licensed under the ISC License – see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [BookMyShow](https://bookmyshow.com/) for the inspiration
+- [Stripe](https://stripe.com/) for payment processing
+- [React](https://reactjs.org/) for the frontend framework
+- [Express](https://expressjs.com/) for the backend framework
+- All contributors and supporters
+
+---
+
+<div align="center">
+
+### 🌟 Star this repository if it helped you!
+
+[![GitHub stars](https://img.shields.io/github/stars/Vagvedi/BookMyShow_Clone.svg?style=social&label=Star)](https://github.com/Vagvedi/BookMyShow_Clone)
+[![GitHub forks](https://img.shields.io/github/forks/Vagvedi/BookMyShow_Clone.svg?style=social&label=Fork)](https://github.com/Vagvedi/BookMyShow_Clone/fork)
+[![GitHub issues](https://img.shields.io/github/issues/Vagvedi/BookMyShow_Clone.svg)](https://github.com/Vagvedi/BookMyShow_Clone/issues)
+
+Made with ❤️ by [Vagvedi](https://github.com/Vagvedi)
+
+</div>
